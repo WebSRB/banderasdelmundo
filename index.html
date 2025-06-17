@@ -1,43 +1,582 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Capitales y Banderas</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif; /* A nice default sans-serif font */
-    }
-    /* Adding a custom scrollbar style for better aesthetics */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-  </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.0",
-    "react/": "https://esm.sh/react@^19.1.0/",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards de Países y Capitales</title>
+    <!-- Incluye Tailwind CSS para estilos rápidos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 300px; /* Altura fija para la flashcard */
+            margin: 30px auto;
+            position: relative;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            background-color: #e2e8f0; /* Fondo de la tarjeta */
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            color: #2d3748;
+        }
+        .flashcard-front {
+            background-color: #cbd5e0; /* Color frontal */
+            color: #1a202c;
+        }
+        .flashcard-back {
+            background-color: #a0aec0; /* Color trasero */
+            transform: rotateY(180deg);
+            color: #1a202c;
+        }
+        .flag-image {
+            max-width: 80%;
+            max-height: 120px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary {
+            background-color: #4299e1; /* Azul principal */
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: #3182ce; /* Azul más oscuro al pasar el ratón */
+            transform: translateY(-2px);
+        }
+        .button-secondary {
+            background-color: #edf2f7; /* Gris secundario */
+            color: #4a5568;
+        }
+        .button-secondary:hover {
+            background-color: #e2e8f0; /* Gris más oscuro al pasar el ratón */
+            transform: translateY(-2px);
+        }
+        select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            background-color: #edf2f7;
+            font-size: 1rem;
+            color: #2d3748;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1.5em;
+        }
+        select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px;
+            }
+            .button {
+                width: calc(50% - 20px);
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 min-h-screen flex items-center justify-center p-4">
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Flashcards de Geografía</h1>
+
+        <!-- Selector de Continente -->
+        <div class="mb-6 flex justify-center items-center gap-4">
+            <label for="continent-select" class="text-lg text-gray-700">Selecciona un Continente:</label>
+            <select id="continent-select" class="block w-full max-w-xs">
+                <!-- Opciones de continentes se llenarán con JavaScript -->
+            </select>
+        </div>
+
+        <!-- Contenedor de la Flashcard -->
+        <div class="flashcard-container">
+            <div id="flashcard" class="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <img id="flag-front" class="flag-image hidden" alt="Bandera">
+                    <p id="country-name" class="text-3xl font-semibold mb-2">País</p>
+                    <p class="text-xl text-gray-600">(Haz clic para ver la capital)</p>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <img id="flag-back" class="flag-image hidden" alt="Bandera">
+                    <p id="capital-name" class="text-3xl font-semibold mb-2">Capital</p>
+                    <p id="country-name-back" class="text-xl text-gray-600"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de navegación -->
+        <div class="flex justify-center flex-wrap gap-4">
+            <button id="prev-button" class="button button-secondary">Anterior</button>
+            <button id="next-button" class="button button-primary">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos extraídos del PDF y procesados
+        // Se han limpiado los saltos de línea y espacios extra.
+        // Se ha normalizado el nombre de los continentes y países para evitar duplicados y facilitar el manejo.
+        const allCountriesData = [
+            // Europa
+            {"continente": "Europa", "pais": "Albania", "capital": "Tirana"},
+            {"continente": "Europa", "pais": "Alemania", "capital": "Berlín"},
+            {"continente": "Europa", "pais": "Andorra", "capital": "Andorra la Vieja"},
+            {"continente": "Europa", "pais": "Armenia", "capital": "Ereván"},
+            {"continente": "Europa", "pais": "Austria", "capital": "Viena"},
+            {"continente": "Europa", "pais": "Azerbaiyán", "capital": "Bakú"},
+            {"continente": "Europa", "pais": "Bélgica", "capital": "Bruselas"},
+            {"continente": "Europa", "pais": "Bielorrusia", "capital": "Minsk"},
+            {"continente": "Europa", "pais": "Bosnia y Herzegovina", "capital": "Sarajevo"},
+            {"continente": "Europa", "pais": "Bulgaria", "capital": "Sofía"},
+            {"continente": "Europa", "pais": "República Checa", "capital": "Praga"},
+            {"continente": "Europa", "pais": "Croacia", "capital": "Zagreb"},
+            {"continente": "Europa", "pais": "Dinamarca", "capital": "Copenhague"},
+            {"continente": "Europa", "pais": "Eslovaquia", "capital": "Bratislava"},
+            {"continente": "Europa", "pais": "Eslovenia", "capital": "Liubliana"},
+            {"continente": "Europa", "pais": "España", "capital": "Madrid"},
+            {"continente": "Europa", "pais": "Estonia", "capital": "Tallin"},
+            {"continente": "Europa", "pais": "Finlandia", "capital": "Helsinki"},
+            {"continente": "Europa", "pais": "Francia", "capital": "París"},
+            {"continente": "Europa", "pais": "Georgia", "capital": "Tiflis"},
+            {"continente": "Europa", "pais": "Grecia", "capital": "Atenas"},
+            {"continente": "Europa", "pais": "Hungría", "capital": "Budapest"},
+            {"continente": "Europa", "pais": "Irlanda", "capital": "Dublín"},
+            {"continente": "Europa", "pais": "Islandia", "capital": "Reikiavik"},
+            {"continente": "Europa", "pais": "Italia", "capital": "Roma"},
+            {"continente": "Europa", "pais": "Letonia", "capital": "Riga"},
+            {"continente": "Europa", "pais": "Liechtenstein", "capital": "Vaduz"},
+            {"continente": "Europa", "pais": "Lituania", "capital": "Vilna"},
+            {"continente": "Europa", "pais": "Luxemburgo", "capital": "Luxemburgo"},
+            {"continente": "Europa", "pais": "República de Macedonia del Norte", "capital": "Skopie"}, // Corregido el nombre
+            {"continente": "Europa", "pais": "Malta", "capital": "La Valeta"},
+            {"continente": "Europa", "pais": "Moldavia", "capital": "Chisinau"},
+            {"continente": "Europa", "pais": "Mónaco", "capital": "Mónaco"},
+            {"continente": "Europa", "pais": "Montenegro", "capital": "Podgorica"},
+            {"continente": "Europa", "pais": "Noruega", "capital": "Oslo"},
+            {"continente": "Europa", "pais": "Países Bajos", "capital": "Ámsterdam"},
+            {"continente": "Europa", "pais": "Polonia", "capital": "Varsovia"},
+            {"continente": "Europa", "pais": "Portugal", "capital": "Lisboa"},
+            {"continente": "Europa", "pais": "Reino Unido", "capital": "Londres"},
+            {"continente": "Europa", "pais": "Rumanía", "capital": "Bucarest"},
+            {"continente": "Europa", "pais": "Rusia", "capital": "Moscú"},
+            {"continente": "Europa", "pais": "San Marino", "capital": "Ciudad de San Marino"},
+            {"continente": "Europa", "pais": "Serbia", "capital": "Belgrado"},
+            {"continente": "Europa", "pais": "Suecia", "capital": "Estocolmo"},
+            {"continente": "Europa", "pais": "Suiza", "capital": "Berna"},
+            {"continente": "Europa", "pais": "Ucrania", "capital": "Kiev"},
+            {"continente": "Europa", "pais": "Vaticano", "capital": "Ciudad del Vaticano"},
+            // América
+            {"continente": "América", "pais": "Antigua y Barbuda", "capital": "Saint John's"},
+            {"continente": "América", "pais": "Argentina", "capital": "Buenos Aires"},
+            {"continente": "América", "pais": "Bahamas", "capital": "Nasáu"},
+            {"continente": "América", "pais": "Barbados", "capital": "Bridgetown"},
+            {"continente": "América", "pais": "Belice", "capital": "Belmopán"},
+            {"continente": "América", "pais": "Bolivia", "capital": "Sucre, La Paz"},
+            {"continente": "América", "pais": "Brasil", "capital": "Brasilia"},
+            {"continente": "América", "pais": "Canadá", "capital": "Ottawa"},
+            {"continente": "América", "pais": "Chile", "capital": "Santiago de Chile"},
+            {"continente": "América", "pais": "Colombia", "capital": "Bogotá"},
+            {"continente": "América", "pais": "Costa Rica", "capital": "San José"},
+            {"continente": "América", "pais": "Cuba", "capital": "La Habana"},
+            {"continente": "América", "pais": "Dominica", "capital": "Roseau"},
+            {"continente": "América", "pais": "República Dominicana", "capital": "Santo Domingo"},
+            {"continente": "América", "pais": "Ecuador", "capital": "Quito"},
+            {"continente": "América", "pais": "El Salvador", "capital": "San Salvador"},
+            {"continente": "América", "pais": "Estados Unidos", "capital": "Washington D. C."},
+            {"continente": "América", "pais": "Granada", "capital": "Saint George's"},
+            {"continente": "América", "pais": "Guatemala", "capital": "Ciudad de Guatemala"},
+            {"continente": "América", "pais": "Guyana", "capital": "Georgetown"},
+            {"continente": "América", "pais": "Haití", "capital": "Puerto Príncipe"},
+            {"continente": "América", "pais": "Honduras", "capital": "Tegucigalpa"},
+            {"continente": "América", "pais": "Jamaica", "capital": "Kingston"},
+            {"continente": "América", "pais": "México", "capital": "Ciudad de México"}, // Modificado para ser más consistente
+            {"continente": "América", "pais": "Nicaragua", "capital": "Managua"},
+            {"continente": "América", "pais": "Panamá", "capital": "Ciudad de Panamá"},
+            {"continente": "América", "pais": "Paraguay", "capital": "Asunción"},
+            {"continente": "América", "pais": "Perú", "capital": "Lima"},
+            {"continente": "América", "pais": "Puerto Rico", "capital": "San Juan"},
+            {"continente": "América", "pais": "San Cristóbal y Nieves", "capital": "Basseterre"},
+            {"continente": "América", "pais": "Santa Lucía", "capital": "Castries"},
+            {"continente": "América", "pais": "San Vicente y las Granadinas", "capital": "Kingstown"},
+            {"continente": "América", "pais": "Surinam", "capital": "Paramaribo"},
+            {"continente": "América", "pais": "Trinidad y Tobago", "capital": "Puerto España"},
+            {"continente": "América", "pais": "Uruguay", "capital": "Montevideo"},
+            {"continente": "América", "pais": "Venezuela", "capital": "Caracas"},
+            // Asia
+            {"continente": "Asia", "pais": "Afganistán", "capital": "Kabul"},
+            {"continente": "Asia", "pais": "Arabia Saudita", "capital": "Riad"},
+            {"continente": "Asia", "pais": "Baréin", "capital": "Manama"},
+            {"continente": "Asia", "pais": "Bangladés", "capital": "Daca"},
+            {"continente": "Asia", "pais": "Brunéi", "capital": "Bandar Seri Begawan"},
+            {"continente": "Asia", "pais": "Bután", "capital": "Timbu"},
+            {"continente": "Asia", "pais": "Camboya", "capital": "Nom Pen"},
+            {"continente": "Asia", "pais": "Catar", "capital": "Doha"},
+            {"continente": "Asia", "pais": "China", "capital": "Pekín"},
+            {"continente": "Asia", "pais": "Chipre", "capital": "Nicosia"},
+            {"continente": "Asia", "pais": "Corea del Norte", "capital": "Pionyang"},
+            {"continente": "Asia", "pais": "Corea del Sur", "capital": "Seúl"},
+            {"continente": "Asia", "pais": "Emiratos Árabes Unidos", "capital": "Abu Dabi"},
+            {"continente": "Asia", "pais": "Filipinas", "capital": "Manila"},
+            {"continente": "Asia", "pais": "India", "capital": "Nueva Delhi"},
+            {"continente": "Asia", "pais": "Indonesia", "capital": "Yakarta"},
+            {"continente": "Asia", "pais": "Irán", "capital": "Teherán"},
+            {"continente": "Asia", "pais": "Iraq", "capital": "Bagdad"},
+            {"continente": "Asia", "pais": "Israel", "capital": "Jerusalén"},
+            {"continente": "Asia", "pais": "Japón", "capital": "Tokio"},
+            {"continente": "Asia", "pais": "Jordania", "capital": "Amán"},
+            {"continente": "Asia", "pais": "Kazajistán", "capital": "Astaná"},
+            {"continente": "Asia", "pais": "Kirguistán", "capital": "Biskek"},
+            {"continente": "Asia", "pais": "Kuwait", "capital": "Ciudad de Kuwait"},
+            {"continente": "Asia", "pais": "Laos", "capital": "Vientián"},
+            {"continente": "Asia", "pais": "Líbano", "capital": "Beirut"},
+            {"continente": "Asia", "pais": "Malasia", "capital": "Kuala Lumpur"},
+            {"continente": "Asia", "pais": "Maldivas", "capital": "Malé"},
+            {"continente": "Asia", "pais": "Mongolia", "capital": "Ulán Bator"},
+            {"continente": "Asia", "pais": "Myanmar (Birmania)", "capital": "Naipyidó"},
+            {"continente": "Asia", "pais": "Nepal", "capital": "Katmandú"},
+            {"continente": "Asia", "pais": "Omán", "capital": "Mascate"},
+            {"continente": "Asia", "pais": "Pakistán", "capital": "Islamabad"},
+            {"continente": "Asia", "pais": "Palestina", "capital": "Ramala"},
+            {"continente": "Asia", "pais": "Singapur", "capital": "Singapur"},
+            {"continente": "Asia", "pais": "Siria", "capital": "Damasco"},
+            {"continente": "Asia", "pais": "Sri Lanka", "capital": "Sri Jayawardenapura Kotte"}, // Nombre completo
+            {"continente": "Asia", "pais": "Tailandia", "capital": "Bangkok"},
+            {"continente": "Asia", "pais": "Taiwán", "capital": "Taipéi"},
+            {"continente": "Asia", "pais": "Tayikistán", "capital": "Dusambé"},
+            {"continente": "Asia", "pais": "Timor Oriental", "capital": "Dili"},
+            {"continente": "Asia", "pais": "Turkmenistán", "capital": "Asjabad"},
+            {"continente": "Asia", "pais": "Turquía", "capital": "Ankara"},
+            {"continente": "Asia", "pais": "Uzbekistán", "capital": "Taskent"},
+            {"continente": "Asia", "pais": "Vietnam", "capital": "Hanói"},
+            {"continente": "Asia", "pais": "Yemen", "capital": "Saná"},
+            // África
+            {"continente": "África", "pais": "Angola", "capital": "Luanda"},
+            {"continente": "África", "pais": "Argelia", "capital": "Argel"},
+            {"continente": "África", "pais": "Benín", "capital": "Porto Novo"},
+            {"continente": "África", "pais": "Botsuana", "capital": "Gaborone"},
+            {"continente": "África", "pais": "Burkina Faso", "capital": "Uagadugú"},
+            {"continente": "África", "pais": "Burundi", "capital": "Buyumbura"},
+            {"continente": "África", "pais": "Cabo Verde", "capital": "Praia"},
+            {"continente": "África", "pais": "Camerún", "capital": "Yaundé"},
+            {"continente": "África", "pais": "República Centroafricana", "capital": "Bangui"},
+            {"continente": "África", "pais": "Chad", "capital": "Yamena"},
+            {"continente": "África", "pais": "Comoras", "capital": "Moroni"},
+            {"continente": "África", "pais": "República del Congo", "capital": "Brazzaville"},
+            {"continente": "África", "pais": "República Democrática del Congo", "capital": "Kinshasa"},
+            {"continente": "África", "pais": "Costa de Marfil", "capital": "Yamusukro, Abiyán"},
+            {"continente": "África", "pais": "Egipto", "capital": "El Cairo"},
+            {"continente": "África", "pais": "Eritrea", "capital": "Asmara"},
+            {"continente": "África", "pais": "Etiopía", "capital": "Adís Abeba"},
+            {"continente": "África", "pais": "Gabón", "capital": "Libreville"},
+            {"continente": "África", "pais": "Gambia", "capital": "Banjul"},
+            {"continente": "África", "pais": "Ghana", "capital": "Acra"},
+            {"continente": "África", "pais": "Guinea", "capital": "Conakri"},
+            {"continente": "África", "pais": "Guinea-Bisáu", "capital": "Bisáu"},
+            {"continente": "África", "pais": "Guinea Ecuatorial", "capital": "Malabo"},
+            {"continente": "África", "pais": "Kenia", "capital": "Nairobi"},
+            {"continente": "África", "pais": "Lesoto", "capital": "Maseru"},
+            {"continente": "África", "pais": "Liberia", "capital": "Monrovia"},
+            {"continente": "África", "pais": "Libia", "capital": "Trípoli"},
+            {"continente": "África", "pais": "Madagascar", "capital": "Antananarivo"},
+            {"continente": "África", "pais": "Malaui", "capital": "Lilongüe"},
+            {"continente": "África", "pais": "Malí", "capital": "Bamako"},
+            {"continente": "África", "pais": "Marruecos", "capital": "Rabat"},
+            {"continente": "África", "pais": "Mauricio", "capital": "Port Louis"},
+            {"continente": "África", "pais": "Mauritania", "capital": "Nuakchot"},
+            {"continente": "África", "pais": "Mozambique", "capital": "Maputo"},
+            {"continente": "África", "pais": "Namibia", "capital": "Windhoek"},
+            {"continente": "África", "pais": "Níger", "capital": "Niamey"},
+            {"continente": "África", "pais": "Nigeria", "capital": "Abuya"},
+            {"continente": "África", "pais": "República Saharaui", "capital": "El Aaiún"},
+            {"continente": "África", "pais": "Ruanda", "capital": "Kigali"},
+            {"continente": "África", "pais": "Santo Tomé y Príncipe", "capital": "Santo Tomé"},
+            {"continente": "África", "pais": "Senegal", "capital": "Dakar"},
+            {"continente": "África", "pais": "Seychelles", "capital": "Victoria"},
+            {"continente": "África", "pais": "Sierra Leona", "capital": "Freetown"},
+            {"continente": "África", "pais": "Somalia", "capital": "Mogadiscio"},
+            {"continente": "África", "pais": "Esuatini (Suazilandia)", "capital": "Mbabane"}, // Normalizado
+            {"continente": "África", "pais": "Sudáfrica", "capital": "Pretoria, Ciudad del Cabo, Bloemfontein"},
+            {"continente": "África", "pais": "Sudán del Norte", "capital": "Jartum"},
+            {"continente": "África", "pais": "Sudán del Sur", "capital": "Yuba"},
+            {"continente": "África", "pais": "Tanzania", "capital": "Dodoma"},
+            {"continente": "África", "pais": "Togo", "capital": "Lomé"},
+            {"continente": "África", "pais": "Túnez", "capital": "Túnez"},
+            {"continente": "África", "pais": "Uganda", "capital": "Kampala"},
+            {"continente": "África", "pais": "Yibuti", "capital": "Yibuti"},
+            {"continente": "África", "pais": "Zambia", "capital": "Lusaka"},
+            {"continente": "África", "pais": "Zimbabue", "capital": "Harare"},
+            // Oceanía
+            {"continente": "Oceanía", "pais": "Australia", "capital": "Canberra"},
+            {"continente": "Oceanía", "pais": "Fiyi", "capital": "Suva"},
+            {"continente": "Oceanía", "pais": "Kiribati", "capital": "Tarawa"},
+            {"continente": "Oceanía", "pais": "Islas Marshall", "capital": "Majuro"},
+            {"continente": "Oceanía", "pais": "Micronesia", "capital": "Palikir"},
+            {"continente": "Oceanía", "pais": "Nauru", "capital": "Yaren"},
+            {"continente": "Oceanía", "pais": "Nueva Zelanda", "capital": "Wellington"},
+            {"continente": "Oceanía", "pais": "Palaos", "capital": "Melekeok"},
+            {"continente": "Oceanía", "pais": "Papúa Nueva Guinea", "capital": "Port Moresby"},
+            {"continente": "Oceanía", "pais": "Islas Salomón", "capital": "Honiara"},
+            {"continente": "Oceanía", "pais": "Samoa", "capital": "Apia"},
+            {"continente": "Oceanía", "pais": "Tonga", "capital": "Nuku'alofa"},
+            {"continente": "Oceanía", "pais": "Tuvalu", "capital": "Funafuti"},
+            {"continente": "Oceanía", "pais": "Vanuatu", "capital": "Port Vila"}
+        ];
+
+        // Función para obtener el identificador de la bandera (código ISO o nombre específico) para FlagCDN
+        function getFlagIdentifier(countryName) {
+            // Limpieza básica: a minúsculas, elimina tildes y espacios extra
+            let cleaned = countryName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
+
+            // Mapeo directo del nombre limpiado en español al identificador de FlagCDN (código ISO o nombre en inglés)
+            const flagMap = {
+                "albania": "al", "alemania": "de", "andorra": "ad", "armenia": "am", "austria": "at",
+                "azerbaiyan": "az", "belgica": "be", "bielorrusia": "by", "bosnia y herzegovina": "ba",
+                "bulgaria": "bg", "republica checa": "cz", "croacia": "hr", "dinamarca": "dk",
+                "eslovaquia": "sk", "eslovenia": "si", "españa": "es", "estonia": "ee",
+                "finlandia": "fi", "francia": "fr", "georgia": "ge", "grecia": "gr",
+                "hungria": "hu", "irlanda": "ie", "islandia": "is", "italia": "it",
+                "letonia": "lv", "liechtenstein": "li", "lituania": "lt", "luxemburgo": "lu",
+                "republica de macedonia del norte": "mk", "malta": "mt", "moldavia": "md",
+                "monaco": "mc", "montenegro": "me", "noruega": "no", "paises bajos": "nl",
+                "polonia": "pl", "portugal": "pt", "reino unido": "gb", "rumania": "ro",
+                "rusia": "ru", "san marino": "sm", "serbia": "rs", "suecia": "se",
+                "suiza": "ch", "ucrania": "ua", "vaticano": "va",
+                // América
+                "antigua y barbuda": "ag", "argentina": "ar", "bahamas": "bs", "barbados": "bb",
+                "belice": "bz", "bolivia": "bo", "brasil": "br", "canada": "ca",
+                "chile": "cl", "colombia": "co", "costa rica": "cr", "cuba": "cu",
+                "dominica": "dm", "republica dominicana": "do", "ecuador": "ec",
+                "el salvador": "sv", "estados unidos": "us", "granada": "gd",
+                "guatemala": "gt", "guyana": "gy", "haiti": "ht", "honduras": "hn",
+                "jamaica": "jm", "mexico": "mx", "nicaragua": "ni", "panama": "pa",
+                "paraguay": "py", "peru": "pe", "puerto rico": "pr",
+                "san cristobal y nieves": "kn", "santa lucia": "lc",
+                "san vicente y las granadinas": "vc", "surinam": "sr",
+                "trinidad y tobago": "tt", "uruguay": "uy", "venezuela": "ve",
+                // Asia
+                "afganistan": "af", "arabia saudita": "sa", "barein": "bh", "banglades": "bd",
+                "brunei": "bn", "butan": "bt", "camboya": "kh", "catar": "qa",
+                "china": "cn", "chipre": "cy", "corea del norte": "kp", "corea del sur": "kr",
+                "emiratos arabes unidos": "ae", "filipinas": "ph", "india": "in",
+                "indonesia": "id", "iran": "ir", "iraq": "iq", "israel": "il",
+                "japon": "jp", "jordania": "jo", "kazajistan": "kz", "kirguistan": "kg",
+                "kuwait": "kw", "laos": "la", "libano": "lb", "malasia": "my",
+                "maldivas": "mv", "mongolia": "mn", "myanmar (birmania)": "mm", "nepal": "np",
+                "oman": "om", "pakistan": "pk", "palestina": "ps", "singapur": "sg",
+                "siria": "sy", "sri lanka": "lk", "tailandia": "th", "taiwan": "tw",
+                "tayikistan": "tj", "timor oriental": "tl", "turkmenistan": "tm",
+                "turquia": "tr", "uzbekistan": "uz", "vietnam": "vn", "yemen": "ye",
+                // África
+                "angola": "ao", "argelia": "dz", "benin": "bj", "botsuana": "bw",
+                "burkina faso": "bf", "burundi": "bi", "cabo verde": "cv", "camerun": "cm",
+                "republica centroafricana": "cf", "chad": "td", "comoras": "km",
+                "republica del congo": "cg", "republica democratica del congo": "cd",
+                "costa de marfil": "ci", "egipto": "eg", "eritrea": "er", "etiopia": "et",
+                "gabon": "ga", "gambia": "gm", "ghana": "gh", "guinea": "gn",
+                "guinea-bisau": "gw", "guinea ecuatorial": "gq", "kenia": "ke", "lesoto": "ls",
+                "liberia": "lr", "libia": "ly", "madagascar": "mg", "malaui": "mw",
+                "mali": "ml", "marruecos": "ma", "mauricio": "mu", "mauritan": "mr",
+                "mozambique": "mz", "namibia": "na", "niger": "ne", "nigeria": "ng",
+                "republica saharaui": "eh", "ruanda": "rw", "santo tome y principe": "st",
+                "senegal": "sn", "seychelles": "sc", "sierra leona": "sl", "somalia": "so",
+                "esuatini (suazilandia)": "sz", "sudafrica": "za", "sudan del norte": "sd",
+                "sudan del sur": "ss", "tanzania": "tz", "togo": "tg", "tunez": "tn",
+                "uganda": "ug", "yibuti": "dj", "zambia": "zm", "zimbabue": "zw",
+                // Oceanía
+                "australia": "au", "fiyi": "fj", "kiribati": "ki", "islas marshall": "mh",
+                "micronesia": "fm", "nauru": "nr", "nueva zelanda": "nz", "palaos": "pw",
+                "papua nueva guinea": "pg", "islas salomon": "sb", "samoa": "ws",
+                "tonga": "to", "tuvalu": "tv", "vanuatu": "vu"
+            };
+
+            return flagMap[cleaned] || ''; // Devuelve el identificador o cadena vacía si no se encuentra
+        }
+
+        // Obtener elementos del DOM
+        const continentSelect = document.getElementById('continent-select');
+        const flashcard = document.getElementById('flashcard');
+        const countryName = document.getElementById('country-name');
+        const capitalName = document.getElementById('capital-name');
+        const countryNameBack = document.getElementById('country-name-back');
+        const flagFront = document.getElementById('flag-front');
+        const flagBack = document.getElementById('flag-back');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+
+        let currentContinentData = [];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // Función para cargar los continentes en el selector
+        function loadContinents() {
+            const continents = [...new Set(allCountriesData.map(item => item.continente))].sort();
+            continentSelect.innerHTML = '<option value="">Selecciona un Continente</option>'; // Opción por defecto
+            continents.forEach(continent => {
+                const option = document.createElement('option');
+                option.value = continent;
+                option.textContent = continent;
+                continentSelect.appendChild(option);
+            });
+        }
+
+        // Función para obtener la URL de la bandera
+        function getFlagUrl(country) {
+            const flagIdentifier = getFlagIdentifier(country);
+            if (flagIdentifier) {
+                // Usando flagcdn.com con el identificador (código ISO o nombre específico)
+                return `https://flagcdn.com/w320/${flagIdentifier}.png`;
+            }
+            return ""; // Retorna cadena vacía si no se encuentra el identificador
+        }
+
+        // Función para mostrar la flashcard actual
+        function showFlashcard() {
+            if (currentContinentData.length === 0) {
+                countryName.textContent = "No hay datos";
+                capitalName.textContent = "Selecciona un continente";
+                countryNameBack.textContent = "";
+                flagFront.src = "";
+                flagBack.src = "";
+                flagFront.classList.add('hidden');
+                flagBack.classList.add('hidden');
+                flashcard.classList.remove('flipped');
+                isFlipped = false;
+                return;
+            }
+
+            const data = currentContinentData[currentIndex];
+            countryName.textContent = data.pais;
+            capitalName.textContent = data.capital;
+            countryNameBack.textContent = `(${data.pais})`;
+
+            // Cargar bandera en ambos lados de la flashcard
+            const flagUrl = getFlagUrl(data.pais);
+
+            if (flagUrl) {
+                flagFront.src = flagUrl;
+                flagBack.src = flagUrl;
+                flagFront.classList.remove('hidden');
+                flagBack.classList.remove('hidden');
+
+                // Manejar error de carga de imagen (bandera no encontrada)
+                flagFront.onerror = () => {
+                    flagFront.src = "https://placehold.co/150x100/CCCCCC/333333?text=Sin+Bandera";
+                    flagBack.src = "https://placehold.co/150x100/CCCCCC/333333?text=Sin+Bandera";
+                };
+                flagBack.onerror = flagFront.onerror; // Aplicar el mismo manejador al lado de atrás
+            } else {
+                // Si no se pudo obtener una URL válida, mostrar el placeholder
+                flagFront.src = "https://placehold.co/150x100/CCCCCC/333333?text=Sin+Bandera";
+                flagBack.src = "https://placehold.co/150x100/CCCCCC/333333?text=Sin+Bandera";
+                flagFront.classList.remove('hidden');
+                flagBack.classList.remove('hidden');
+            }
+
+
+            // Asegurarse de que la tarjeta no esté volteada al cambiar de país
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+        }
+
+        // Evento para voltear la flashcard
+        flashcard.addEventListener('click', () => {
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        });
+
+        // Evento para el botón "Siguiente"
+        nextButton.addEventListener('click', () => {
+            if (currentContinentData.length > 0) {
+                currentIndex = (currentIndex + 1) % currentContinentData.length;
+                showFlashcard();
+            }
+        });
+
+        // Evento para el botón "Anterior"
+        prevButton.addEventListener('click', () => {
+            if (currentContinentData.length > 0) {
+                currentIndex = (currentIndex - 1 + currentContinentData.length) % currentContinentData.length;
+                showFlashcard();
+            }
+        });
+
+        // Evento cuando se selecciona un continente
+        continentSelect.addEventListener('change', (event) => {
+            const selectedContinent = event.target.value;
+            if (selectedContinent) {
+                currentContinentData = allCountriesData.filter(item => item.continente === selectedContinent);
+                // Ordenar alfabéticamente para una experiencia consistente
+                currentContinentData.sort((a, b) => a.pais.localeCompare(b.pais, 'es', { sensitivity: 'base' }));
+            } else {
+                currentContinentData = [];
+            }
+            currentIndex = 0; // Resetear índice al cambiar de continente
+            showFlashcard();
+        });
+
+        // Inicializar la aplicación al cargar la página
+        window.onload = () => {
+            loadContinents();
+            showFlashcard(); // Mostrar el estado inicial
+        };
+    </script>
 </body>
 </html>
